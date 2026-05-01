@@ -36,9 +36,9 @@ jobs:
       - name: Install Apktool
         run: |
           
-          # Download apktool jar and wrapper script
-          wget https://github.com/iBotPeaches/Apktool/releases/download/v3.0.2/apktool_3.0.2.jar -O apktool.jar
-          wget https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O apktool
+          # Download apktool jar and wrapper script (use 2.9.3 for better compatibility)
+          wget https://github.com/iBotPeaches/Apktool/releases/download/v2.9.3/apktool_2.9.3.jar -O apktool.jar
+          wget https://raw.githubusercontent.com/iBotPeaches/Apktool/v2.9.3/scripts/linux/apktool -O apktool
           
           # Make executable and move to PATH
           chmod +x apktool
