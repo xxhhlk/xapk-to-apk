@@ -27,7 +27,7 @@ const_file_xapk_manifest_key_package_name = "package_name"
 
 const_prefix_apk_split_type_config = "config"
 const_suffix_apk_split_type_dpi = "dpi"
-const_values_apk_split_type_arch = [ "arm64_v8a", "armeabi_v7a", "armeabi", "x86", "x86_64" ]
+const_values_apk_split_type_arch = [ "arm64_v8a", "arm64-v8a", "armeabi_v7a", "armeabi-v7a", "armeabi", "x86", "x86_64" ]
 
 const_split_apk_type_main = "main"
 const_split_apk_type_arch = "arch"
@@ -588,6 +588,11 @@ def main():
         target_apks[apk_file_name] = properties
 
     print('[*] xapk file unpacked. %d parts discovered' % len(target_apk_file_names))
+
+    # Debug: print all APK types
+    print('[DEBUG] Discovered APK parts:')
+    for apk_file_key, apk_entry in target_apks.items():
+        print(f'[DEBUG] - {apk_file_key}: type={apk_entry["apk_split_type"]}')
 
     unpack_number_total = len(target_apks.keys())
     for index, apk_file_key in enumerate(target_apks.keys()):
