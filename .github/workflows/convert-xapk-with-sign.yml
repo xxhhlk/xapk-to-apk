@@ -105,9 +105,9 @@ jobs:
           which apktool
           apktool --version
           which zipalign
-          zipalign --version
+          echo "zipalign is available at: $(which zipalign)"
           which apksigner
-          apksigner --version
+          echo "apksigner is available at: $(which apksigner)"
       
       - name: Convert XAPK to APK (with verbose output)
         run: |
