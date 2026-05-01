@@ -589,11 +589,6 @@ def main():
 
     print('[*] xapk file unpacked. %d parts discovered' % len(target_apk_file_names))
 
-    # Debug: print all APK types
-    print('[DEBUG] Discovered APK parts:')
-    for apk_file_key, apk_entry in target_apks.items():
-        print(f'[DEBUG] - {apk_file_key}: type={apk_entry["apk_split_type"]}')
-
     unpack_number_total = len(target_apks.keys())
     for index, apk_file_key in enumerate(target_apks.keys()):
         apk_entry = target_apks[apk_file_key]
@@ -616,20 +611,6 @@ def main():
 
     delete_signature_related_files(apk_main['apk_dir_path'])
     update_main_manifest_file(apk_main['apk_dir_path'])
-
-    # Debug: print merged lib directory contents
-    lib_dir = os.path.join(apk_main['apk_dir_path'], 'lib')
-    if os.path.exists(lib_dir):
-        print(f'[DEBUG] Merged lib directory contents:')
-        for root, dirs, files in os.walk(lib_dir):
-            rel_path = os.path.relpath(root, lib_dir)
-            if rel_path == '.':
-                rel_path = ''
-            print(f'[DEBUG] - {rel_path}/: {len(files)} files')
-            for f in files[:5]: # Show up to 5 files per dir
-                print(f'[DEBUG]   - {f}')
-            if len(files) > 5:
-                print(f'[DEBUG]   - ... and {len(files)-5} more files')
 
     build_single_apk(path_dir_tmp, apk_main['apk_dir_path'], should_sign_apk, sign_properties)
     copy_single_apk_to_working_dir(path_dir_tmp, cwd, original_file_name)
