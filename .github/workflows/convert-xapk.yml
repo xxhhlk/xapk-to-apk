@@ -31,12 +31,21 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip
-      
+          sudo apt-get install -y wget unzip openjdk-17-jre-headless
+
       - name: Install Apktool
         run: |
-          wget https://github.com/iBotPeaches/Apktool/releases/download/v3.0.2/apktool_3.0.2_all.deb
-          sudo dpkg -i apktool_3.0.2_all.deb
+          
+          # Download apktool jar and wrapper script
+          wget https://github.com/iBotPeaches/Apktool/releases/download/v3.0.2/apktool_3.0.2.jar -O apktool.jar
+          wget https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool -O apktool
+          
+          # Make executable and move to PATH
+          chmod +x apktool
+          sudo mv apktool /usr/local/bin/
+          sudo mv apktool.jar /usr/local/bin/
+          
+          # Verify installation
           apktool --version
       
       - name: Set up Android SDK Build Tools
