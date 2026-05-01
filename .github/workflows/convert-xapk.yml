@@ -1,0 +1,91 @@
+name: Convert XAPK to APK
+
+on:
+  push:
+    paths:
+      - '**.xapk'
+  workflow_dispatch:
+    inputs:
+      xapk_url:
+        description: 'XAPK 文件 URL (可选)'
+        required: false
+        type: string
+      xapk_path:
+        description: '仓库内 XAPK 文件路径 (可选)'
+        required: false
+        type: string
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+      
+      - name: Install Apktool
+        run: |
+          wget https://github.com/iBotPeaches/Apktool/releases/latest/download/apktool_2.9.3_all.deb
+          sudo dpkg -i apktool_2.9.3_all.deb
+          apktool --version
+      
+      - name: Set up Android SDK Build Tools
+        run: |
+          wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip commandlinetools-linux-11076708_latest.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          mv cmdline-tools $HOME/android-sdk/cmdline-tools/latest
+          
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/build-tools/34.0.0" >> $GITHUB_PATH
+          
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0"
+          
+          zipalign --version || true
+          ls -la $HOME/android-sdk/build-tools/34.0.0/
+      
+      - name: Download XAPK (if URL provided)
+        if: inputs.xapk_url != ''
+        run: |
+          wget ${{ inputs.xapk_url }} -O input.xapk
+          ls -la
+      
+      - name: Find XAPK file
+        id: find-xapk
+        run: |
+          if [ -f "input.xapk" ]; then
+            echo "xapk_path=input.xapk" >> $GITHUB_OUTPUT
+          elif [ -n "${{ inputs.xapk_path }}" ]; then
+            echo "xapk_path=${{ inputs.xapk_path }}" >> $GITHUB_OUTPUT
+          else
+            XAPK_FILE=$(find . -name "*.xapk" -type f | head -n 1)
+            if [ -z "$XAPK_FILE" ]; then
+              echo "No XAPK file found!"
+              exit 1
+            fi
+            echo "xapk_path=$XAPK_FILE" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Convert XAPK to APK
+        run: |
+          XAPK_FILE="${{ steps.find-xapk.outputs.xapk_path }}"
+          python xapktoapk.py "$XAPK_FILE"
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: converted-apk
+          path: '*.apk'
+          retention-days: 30
