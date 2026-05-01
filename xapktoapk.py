@@ -128,18 +128,20 @@ def determine_split_type_by_apk_file_name(apk_file_name, xapk_package_name):
     try:
         if (xapk_package_name + const_ext_apk) == apk_file_name or 'base.apk' == apk_file_name:
             apk_type = const_split_apk_type_main
-        elif apk_file_name.startswith(const_prefix_apk_split_type_config):
+        else:
             clear_file_name = os.path.splitext(apk_file_name)[0]
             clear_file_name_splitted = clear_file_name.split('.')
-            config_name = str(clear_file_name_splitted[1])
-            if config_name.endswith(const_suffix_apk_split_type_dpi):
-                apk_type = const_split_apk_type_dpi
-            elif config_name in const_values_apk_split_type_arch:
-                apk_type = const_split_apk_type_arch
-            else:
+            # Check all parts after the package name for config type
+            # Handles cases like "package.config.arm64_v8a" or "config.arm64_v8a"
+            for part in reversed(clear_file_name_splitted):
+                if part in const_values_apk_split_type_arch:
+                    apk_type = const_split_apk_type_arch
+                    break
+                elif part.endswith(const_suffix_apk_split_type_dpi):
+                    apk_type = const_split_apk_type_dpi
+                    break
+            if apk_type is None:
                 apk_type = const_split_apk_type_locale
-        else:
-            apk_type = const_split_apk_type_locale
     except:
         pass
     return apk_type
