@@ -35,8 +35,8 @@ jobs:
       
       - name: Install Apktool
         run: |
-          wget https://github.com/iBotPeaches/Apktool/releases/latest/download/apktool_2.9.3_all.deb
-          sudo dpkg -i apktool_2.9.3_all.deb
+          wget https://github.com/iBotPeaches/Apktool/releases/download/v3.0.2/apktool_3.0.2_all.deb
+          sudo dpkg -i apktool_3.0.2_all.deb
           apktool --version
       
       - name: Set up Android SDK Build Tools
