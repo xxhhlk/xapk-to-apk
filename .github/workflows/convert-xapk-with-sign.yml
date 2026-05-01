@@ -99,9 +99,21 @@ jobs:
             echo "xapk_path=$XAPK_FILE" >> $GITHUB_OUTPUT
           fi
       
-      - name: Convert XAPK to APK
+      - name: Check tool availability
+        run: |
+          echo "PATH: $PATH"
+          which apktool
+          apktool --version
+          which zipalign
+          zipalign --version
+          which apksigner
+          apksigner --version
+      
+      - name: Convert XAPK to APK (with verbose output)
         run: |
           XAPK_FILE="${{ steps.find-xapk.outputs.xapk_path }}"
+          # Temporarily modify script to show errors
+          sed -i 's/stdout=DEVNULL, stderr=STDOUT//g' xapktoapk.py
           python xapktoapk.py "$XAPK_FILE"
       
       - name: Upload APK artifact
